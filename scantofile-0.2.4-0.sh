@@ -30,14 +30,29 @@ exec 9>&-
 exec 10>&-
 exec 11>&-
 
-output_file=~/brscan/brscan_"`date +%Y-%m-%d-%H-%M-%S`"".pdf"
+date=`date +%Y%m%d%H%M%S`
+outputFile=~/brscan/brscan_"${date}"".pdf"
+pdfmarksFile=~/brscan/pdfmarks_"${date}"
+deviceName=`scanimage -f "%v %m"`
 
-echo "scan from $2($device) to $output_file"
+echo "scan from $2($device) to $outputFile"
 
+# Create pdfmark file
+echo "[ /Title (Scan of "${deviceName}" at "${date}")" >> ${pdfmarksFile}
+echo "  /ModDate (D:"${date}")" >> ${pdfmarksFile}
+echo "  /CreationDate (D:"${date}")" >> ${pdfmarksFile}
+echo "  /Creator ("$deviceName")" >> ${pdfmarksFile}
+echo "  /DOCINFO pdfmark" >> ${pdfmarksFile}
+
+# Now start the actual scan and conversion pipeline
 scanimage --device-name "$device" --resolution $resolution 	\
-		-x 210 -y 297  2>/dev/null | \
-	pnmtops -dpi=${resolution} -equalpixels 2>/dev/null |	\
+		-x 210 -y 297  -l 2 -t 0 2>/dev/null |		\
+	pnmtops -dpi=${resolution} -imagewidth 8.26 -nocenter 2>/dev/null | \
 	gs -q -sDEVICE=pdfwrite -r${resolution} -sPAPERSIZE=a4	\
-		-dBATCH -sOutputFile=${output_file} - 2>/dev/null
+		-dBATCH -sOutputFile=${outputFile} 		\
+		- ${pdfmarksFile} 2>/dev/null
 
-echo  $output_file is created.
+# Cleanup
+rm -f ${pdfmarksFile}
+
+echo  $outputFile is created.
