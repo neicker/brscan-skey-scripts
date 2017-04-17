@@ -38,7 +38,7 @@ deviceName=`scanimage -f "%v %m"`
 echo "scan from $2($device) to $outputFile"
 
 # Create pdfmark file
-echo "[ /Title (Scan of "${deviceName}" at "${date}")" >> ${pdfmarksFile}
+echo "[ /Title (Scan by "${deviceName}" at "${date}")" >> ${pdfmarksFile}
 echo "  /ModDate (D:"${date}")" >> ${pdfmarksFile}
 echo "  /CreationDate (D:"${date}")" >> ${pdfmarksFile}
 echo "  /Creator ("$deviceName")" >> ${pdfmarksFile}
